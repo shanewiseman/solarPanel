@@ -2,13 +2,13 @@
 
 Helios h = Helios();
 
-void getSuryaData(gps_data_s *gpsdata, surya_data_s *suryadata ){
-    h.calcSunPos( gpsdata->year,
-            gpsdata->month,
-            gpsdata->day,
-            ( gpsdata->hour ),
-            gpsdata->minute,
-            gpsdata->seconds,
+void getSuryaData(gps_data_s *gpsdata, rtc_data_s *rtc_data, surya_data_s *suryadata ){
+    h.calcSunPos( rtc_data->year,
+            rtc_data->month,
+            rtc_data->day,
+            rtc_data->hour,
+            rtc_data->minutes,
+            rtc_data->seconds,
             gpsdata->londegrees,
             gpsdata->latdegrees
        );
@@ -17,16 +17,16 @@ void getSuryaData(gps_data_s *gpsdata, surya_data_s *suryadata ){
     suryadata->azimuth = (uint16_t) h.dAzimuth;
 }
 
-void searchSuryaPosition(gps_data_s *gps_data, uint8_t angle ){
+void searchSuryaPosition(gps_data_s *gps_data, rtc_data_s *rtc_data, uint8_t angle ){
     
     uint8_t hour = 7;
     uint8_t minute = 0;
     uint8_t second = 0;
 
     do {
-        h.calcSunPos( gps_data->year,
-            gps_data->month,
-            gps_data->day,
+        h.calcSunPos( rtc_data->year,
+            rtc_data->month,
+            rtc_data->day,
             hour,
             minute,
             second,
@@ -38,9 +38,9 @@ void searchSuryaPosition(gps_data_s *gps_data, uint8_t angle ){
     hour -= 2;
 
     do {
-        h.calcSunPos( gps_data->year,
-            gps_data->month,
-            gps_data->day,
+        h.calcSunPos( rtc_data->year,
+            rtc_data->month,
+            rtc_data->day,
             hour,
             minute,
             second,
@@ -52,9 +52,9 @@ void searchSuryaPosition(gps_data_s *gps_data, uint8_t angle ){
     minute -= 2;
 
     do {
-        h.calcSunPos( gps_data->year,
-            gps_data->month,
-            gps_data->day,
+        h.calcSunPos( rtc_data->year,
+            rtc_data->month,
+            rtc_data->day,
             hour,
             minute,
             second,
@@ -65,9 +65,9 @@ void searchSuryaPosition(gps_data_s *gps_data, uint8_t angle ){
     } while( h.dZenithAngle > angle );
     second -= 2;
     
-    gps_data->hour    = hour;
-    gps_data->minute  = minute;
-    gps_data->seconds = second;
+    rtc_data->hour    = hour;
+    rtc_data->minutes  = minute;
+    rtc_data->seconds = second;
 
 }
 

@@ -157,7 +157,15 @@ uint8_t getYear(){
 
 }
 void set_alarm(rtc_data_s *rtc_data, uint8_t dayoffset){
-    
+
+    Serial.print("Alarm: ");
+    Serial.print(rtc_data->hour);
+    Serial.print(":");
+    Serial.print(rtc_data->minutes);
+    Serial.print(":");
+    Serial.print(rtc_data->seconds);
+
+
     Wire.beginTransmission(I2C_ADDRESS);
     
     Wire.write((uint8_t) ALARM_REG ); 

@@ -4,6 +4,7 @@
 #include "gps.h"
 #include "compass.h"
 #include "accelerometer.h"
+#include "rtc.h"
 #include "./Helios/Helios.h"
 
 typedef struct surya_data_s
@@ -15,7 +16,7 @@ typedef struct surya_data_s
 }  surya_data_s;
 
 
-void getSuryaData(gps_data_s *gps_data, surya_data_s *surya_data);
-void searchSuryaPosition(gps_data_s *gps_data, uint8_t angle );
+void getSuryaData(gps_data_s *gps_data, rtc_data_s *rtc_data, surya_data_s *surya_data);
+void searchSuryaPosition(gps_data_s *gps_data, rtc_data_s *rtc_data, uint8_t angle );
 
 #endif

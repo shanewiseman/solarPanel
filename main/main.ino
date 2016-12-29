@@ -1,6 +1,7 @@
 #include "main.h"
-
-bool CLOCK_UPDATE_REQ = 1;
+gps_data_s gps_data;
+surya_data_s surya_data;
+rtc_data_s   rtc_data;
 
 void setup(void)
 {
@@ -10,6 +11,8 @@ void setup(void)
 
     Serial.println("Starting GPS");
     init_gps();
+    read_gps(&gps_data, &rtc_data);
+    gps_sleep();
 
     Serial.println("Starting COMPASS");
     init_compass();
@@ -19,6 +22,7 @@ void setup(void)
 
     Serial.println("Starting RTC");
     init_rtc();
+    set_ctime(&rtc_data);
 
     Serial.println("INIT Orientation");
     init_azimuth();
@@ -32,15 +36,17 @@ void setup(void)
 
 void loop(void)
 {
-    gps_data_s gps_data;
-    surya_data_s surya_data;
-    rtc_data_s   rtc_data;
+    get_ctime(&rtc_data);
 
-    read_gps(&gps_data);
+    Serial.print(rtc_data.hour);
+    Serial.print(":");
+    Serial.print(rtc_data.minutes);
+    Serial.print(":");
+    Serial.println(rtc_data.seconds);
 
-    getSuryaData(&gps_data, &surya_data);
+    getSuryaData(&gps_data, &rtc_data, &surya_data);
   
-    if( surya_data.zenith > SLEEP_ZENITH ){
+    if( surya_data.zenith > SLEEP_ZENITH && 0){
 
         Serial.println("SLEEP CODE");
 
@@ -49,6 +55,7 @@ void loop(void)
     } else {
 
         orientationCorrection(&surya_data);
+        delay(1000);
     
     }
 }
@@ -61,6 +68,12 @@ void loop(void)
 
 /*
     TODO
+
+    1: we should read gps then transfer time data to rtc, we already have our coordinates, no sense in keeping
+        radio on when we dont need too,
+        use another pin and transitor to turn off gps but not sensors,
+        when we sleep we'll turn them all off.
+
     1: should we put ourselves to sleep during the day?
         2.1 at some scenario tracking does not return the energy we're investing
         2.1.a the lower the intensity the more we should allow the panel to be scanned rather than tracked

@@ -71,28 +71,13 @@ void performSleep(rtc_data_s *rtc_data, surya_data_s *surya_data, gps_data_s *gp
 
 //http://donalmorrissey.blogspot.com/2010/04/putting-arduino-diecimila-to-sleep-part.html
 
-    rtc_data->seconds = gps_data->seconds;
-    rtc_data->minutes = gps_data->minute;
-    rtc_data->hour    = gps_data->hour;
-    rtc_data->day     = gps_data->day;
-    rtc_data->month   = gps_data->month;
-    rtc_data->year    = gps_data->year;
 
-    set_ctime(rtc_data);
+    searchSuryaPosition(gps_data, rtc_data, SLEEP_ZENITH );
 
-    Serial.println(rtc_data->hour);
-
-    searchSuryaPosition(gps_data, SLEEP_ZENITH );
-
-    getSuryaData(gps_data, surya_data);
+    getSuryaData(gps_data, rtc_data, surya_data);
 
     orientationCorrection(surya_data);
 
-    rtc_data->seconds = gps_data->seconds;
-    rtc_data->minutes = gps_data->minute;
-    rtc_data->hour    = gps_data->hour;
-
-   
     set_alarm(rtc_data, 1);
  
 /*
@@ -105,8 +90,6 @@ void performSleep(rtc_data_s *rtc_data, surya_data_s *surya_data, gps_data_s *gp
         Serial.println( Wire.read(), HEX);
     }
 */  
-    gps_sleep();
-
     attachInterrupt(digitalPinToInterrupt( p_INT ) , &awakenSleep,  FALLING);
     delay(100);
     
@@ -128,7 +111,13 @@ void performSleep(rtc_data_s *rtc_data, surya_data_s *surya_data, gps_data_s *gp
     Serial.println( Wire.read(), HEX );
 */
     remove_alarm();
+
     gps_wake();
+    read_gps( gps_data, rtc_data );
+    gps_sleep();
+
+    set_ctime( rtc_data );
+
     Serial.println("AWAKE!");
 
 

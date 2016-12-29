@@ -1,6 +1,9 @@
 #include "gps.h"
 SoftwareSerial mySerial(4, 3);
 
+
+uint8_t p_SNSR_PWR = A1;
+
 Adafruit_GPS GPS(&mySerial);
 Adafruit_GPS *gpsObj = &GPS;
 
@@ -21,8 +24,10 @@ void init_gps(){
     
 }
 
-void read_gps(gps_data_s *data)
+void read_gps(gps_data_s *gps_data, rtc_data_s *rtc_data)
 {
+    /*TODO Should I check to see if gps is on? could just have a boolean somewhere */
+
     char c;
     do{
         while(! gpsObj->newNMEAreceived() ){
@@ -30,25 +35,24 @@ void read_gps(gps_data_s *data)
         }
     } while( ! gpsObj->newNMEAreceived() || !gpsObj->parse(gpsObj->lastNMEA()) );
 
-    data->latdegrees   = gpsObj->latitudeDegrees;
-    data->londegrees   = gpsObj->longitudeDegrees;
-    data->hour         = gpsObj->hour;
-    data->minute       = gpsObj->minute;
-    data->seconds      = gpsObj->seconds;
-    data->day          = gpsObj->day;
-    data->month        = gpsObj->month;
-    data->year         = gpsObj->year;
-    data->altitude     = gpsObj->altitude;
+    gps_data->latdegrees   = gpsObj->latitudeDegrees;
+    gps_data->londegrees   = gpsObj->longitudeDegrees;
+    gps_data->altitude     = gpsObj->altitude;
+
+    rtc_data->hour         = gpsObj->hour;
+    rtc_data->minutes      = gpsObj->minute;
+    rtc_data->seconds      = gpsObj->seconds;
+    rtc_data->day          = gpsObj->day;
+    rtc_data->month        = gpsObj->month;
+    rtc_data->year         = gpsObj->year;
     
 }
 void gps_sleep()
 {
-
     digitalWrite(p_SNSR_PWR, LOW);
 }
 void gps_wake()
 {
-
     digitalWrite(p_SNSR_PWR, HIGH);
     verify_gps_start();
 }
@@ -57,13 +61,14 @@ void verify_gps_start()
 {
     Serial.println("Waiting for GPS Start");
     gps_data_s gps_data;
+    rtc_data_s rtc_data;
 
-    read_gps(&gps_data);
+    read_gps(&gps_data, &rtc_data);
 
-    while( gps_data->latdegrees < 1 ){
+    while( gps_data.latdegrees == 0.00 ){
         Serial.println("Still Waiting...");
-        delay(1000);
-        read_gps(&gps_data);
+        delay(10000);
+        read_gps(&gps_data, &rtc_data);
     }
 
 }
